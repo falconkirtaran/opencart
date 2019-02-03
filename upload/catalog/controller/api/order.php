@@ -286,7 +286,11 @@ class ControllerApiOrder extends Controller {
 					$order_data['comment'] = '';
 				}
 
+<<<<<<< HEAD
 				if (isset($this->request->post['affiliate_id']) && this->config->get('config_affiliate_enabled')) {
+=======
+				if (isset($this->request->post['affiliate_id']) && $this->config->get('config_affiliate_enabled')) {
+>>>>>>> affiliate-patch-20190202
 					$subtotal = $this->cart->getSubTotal();
 
 					// Affiliate
