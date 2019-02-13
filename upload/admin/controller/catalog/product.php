@@ -26,8 +26,8 @@ class ControllerCatalogProduct extends Controller {
 
 			$url = '';
 
-			if (isset($this->request->get['variant_id'])) {
-				$url .= '&variant_id=' . $this->request->get['variant_id'];
+			if (isset($this->request->get['master_id'])) {
+				$url .= '&master_id=' . $this->request->get['master_id'];
 			}
 
 			if (isset($this->request->get['filter_name'])) {
@@ -115,6 +115,149 @@ class ControllerCatalogProduct extends Controller {
 			}
 
 			$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $url));
+		}
+
+		$this->getForm();
+	}
+
+	public function variant() {
+		$this->load->language('catalog/product');
+
+		$this->document->setTitle($this->language->get('heading_title'));
+
+		$this->load->model('catalog/product');
+
+		// Get the original data
+		$product_data = array();
+
+		$product_data = $this->model_catalog_product->getProduct($this->request->get['product_id']);
+
+		unset($product_data['name']);
+		unset($product_data['description']);
+		unset($product_data['meta_title']);
+		unset($product_data['meta_description']);
+		unset($product_data['meta_keyword']);
+		unset($product_data['meta_title']);
+		unset($product_data['tag']);
+		unset($product_data['option']);
+
+		$product_data['product_attribute'] = $this->model_catalog_product->getProductAttributes($this->request->get['product_id']);
+
+		$product_data['product_description'] = $this->model_catalog_product->getProductDescriptions($this->request->get['product_id']);
+
+		$product_data['product_discount'] = $this->model_catalog_product->getProductDiscounts($this->request->get['product_id']);
+
+		$product_data['product_filter'] = $this->model_catalog_product->getProductFilters($this->request->get['product_id']);
+
+		$product_data['product_image'] = $this->model_catalog_product->getProductImages($this->request->get['product_id']);
+
+		$product_data['product_option'] = $this->model_catalog_product->getProductOptions($this->request->get['product_id']);
+
+		$product_data['product_related'] = $this->model_catalog_product->getProductRelated($this->request->get['product_id']);
+
+		$product_data['product_reward'] = $this->model_catalog_product->getProductRewards($this->request->get['product_id']);
+
+		$product_data['product_special'] = $this->model_catalog_product->getProductSpecials($this->request->get['product_id']);
+
+		$product_data['product_category'] = $this->model_catalog_product->getProductCategories($this->request->get['product_id']);
+
+		$product_data['product_download'] = $this->model_catalog_product->getProductDownloads($this->request->get['product_id']);
+
+		$product_data['product_layout'] = $this->model_catalog_product->getProductLayouts($this->request->get['product_id']);
+
+		$product_data['product_store'] = $this->model_catalog_product->getProductStores($this->request->get['product_id']);
+
+		$product_data['product_recurring'] = $this->model_catalog_product->getRecurrings($this->request->get['product_id']);
+
+		echo 'ORIGINAL' . "\n";
+		print_r($product_data['product_attribute']);
+
+		echo 'POST' . "\n";
+		print_r($this->request->post['product_attribute']);
+
+		echo 'ORIGINAL' . "\n";
+		print_r($product_data['product_discount']);
+
+		echo 'POST' . "\n";
+		print_r($this->request->post['product_discount']);
+
+		$changed_data = array();
+
+		foreach ($product_data as $key => $value) {
+			if (isset($this->request->post[$key]) && $this->request->post[$key] != $product_data[$key]) {
+				$changed_data[$key] = $this->request->post[$key];
+			}
+		}
+
+		echo 'CHANGED' . "\n";
+		print_r($changed_data);
+
+		echo 'ORIGINAL' . "\n";
+		print_r($product_data);
+
+		echo 'POST' . "\n";
+		print_r($this->request->post);
+
+		if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validateForm()) {
+			$product_info = $this->model_catalog_product->getProduct($this->request->get['product_id']);
+
+			$data['sku'] = '';
+			$data['upc'] = '';
+			$data['viewed'] = '0';
+			$data['keyword'] = '';
+			$data['status'] = '0';
+
+
+
+
+			$products = $this->model_catalog_product->getProducts($this->request->get['product_id'], $this->request->post);
+
+			foreach ($products as $product) {
+
+
+			}
+
+
+
+			$this->model_catalog_product->editProduct($this->request->get['product_id'], $this->request->post);
+
+			$this->session->data['success'] = $this->language->get('text_success');
+
+			$url = '';
+
+			if (isset($this->request->get['filter_name'])) {
+				$url .= '&filter_name=' . urlencode(html_entity_decode($this->request->get['filter_name'], ENT_QUOTES, 'UTF-8'));
+			}
+
+			if (isset($this->request->get['filter_model'])) {
+				$url .= '&filter_model=' . urlencode(html_entity_decode($this->request->get['filter_model'], ENT_QUOTES, 'UTF-8'));
+			}
+
+			if (isset($this->request->get['filter_price'])) {
+				$url .= '&filter_price=' . $this->request->get['filter_price'];
+			}
+
+			if (isset($this->request->get['filter_quantity'])) {
+				$url .= '&filter_quantity=' . $this->request->get['filter_quantity'];
+			}
+
+			if (isset($this->request->get['filter_status'])) {
+				$url .= '&filter_status=' . $this->request->get['filter_status'];
+			}
+
+			if (isset($this->request->get['sort'])) {
+				$url .= '&sort=' . $this->request->get['sort'];
+			}
+
+			if (isset($this->request->get['order'])) {
+				$url .= '&order=' . $this->request->get['order'];
+			}
+
+			if (isset($this->request->get['page'])) {
+				$url .= '&page=' . $this->request->get['page'];
+			}
+
+			//$this->response->redirect($this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $url));
 		}
 
 		$this->getForm();
@@ -375,8 +518,8 @@ class ControllerCatalogProduct extends Controller {
 				'special'    => $special,
 				'quantity'   => $result['quantity'],
 				'status'     => $result['status'] ? $this->language->get('text_enabled') : $this->language->get('text_disabled'),
-				'edit'       => $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $result['product_id'] . ($result['variant_id'] ? '&variant_id=' . $result['variant_id'] : ''). $url),
-				'variant'    => ($result['variant_id'] ? $this->url->link('catalog/product/add', 'user_token=' . $this->session->data['user_token'] . '&variant_id=' . $result['product_id'] . $url) : '')
+				'edit'       => $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $result['product_id'] . ($result['master_id'] ? '&master_id=' . $result['master_id'] : ''). $url),
+				'variant'    => (!$result['master_id'] ? $this->url->link('catalog/product/add', 'user_token=' . $this->session->data['user_token'] . '&master_id=' . $result['master_id'] . $url) : '')
 			);
 		}
 
@@ -539,8 +682,8 @@ class ControllerCatalogProduct extends Controller {
 
 		$url = '';
 
-		if (isset($this->request->get['variant_id'])) {
-			$url .= '&variant_id=' . $this->request->get['variant_id'];
+		if (isset($this->request->get['master_id'])) {
+			$url .= '&master_id=' . $this->request->get['master_id'];
 		}
 
 		if (isset($this->request->get['filter_name'])) {
@@ -593,13 +736,19 @@ class ControllerCatalogProduct extends Controller {
 			$data['action'] = $this->url->link('catalog/product/edit', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $this->request->get['product_id'] . $url);
 		}
 
+		if (isset($this->request->get['product_id']) && isset($this->request->get['product_id'])) {
+			$data['variant'] = $this->url->link('catalog/product/variant', 'user_token=' . $this->session->data['user_token'] . '&product_id=' . $this->request->get['product_id'] . $url);
+		} else {
+			$data['variant'] = '';
+		}
+
 		$data['cancel'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . $url);
 
-		// If variant_id then we need to get the variant info
+		// If master_id then we need to get the variant info
 		if (isset($this->request->get['product_id'])) {
 			$product_id = (int)$this->request->get['product_id'];
-		} elseif (isset($this->request->get['variant_id'])) {
-			$product_id = (int)$this->request->get['variant_id'];
+		} elseif (isset($this->request->get['master_id'])) {
+			$product_id = (int)$this->request->get['master_id'];
 		} else {
 			$product_id = 0;
 		}
@@ -622,12 +771,12 @@ class ControllerCatalogProduct extends Controller {
 			$data['product_description'] = array();
 		}
 
-		if (isset($this->request->get['variant_id'])) {
-			$data['variant_id'] = (int)$this->request->get['variant_id'];
+		if (isset($this->request->get['master_id'])) {
+			$data['master_id'] = (int)$this->request->get['master_id'];
 		} elseif (!empty($product_info)) {
-			$data['variant_id'] = $product_info['variant_id'];
+			$data['master_id'] = $product_info['master_id'];
 		} else {
-			$data['variant_id'] = 0;
+			$data['master_id'] = 0;
 		}
 
 		if (isset($this->request->post['model'])) {
@@ -1045,11 +1194,10 @@ class ControllerCatalogProduct extends Controller {
 			$data['product_variant'] = array();
 		}
 
-		// Variants
 		$data['options'] = array();
 
-		if (isset($this->request->get['variant_id'])) {
-			$product_options = $this->model_catalog_product->getProductOptions($this->request->get['variant_id']);
+		if (isset($this->request->get['master_id'])) {
+			$product_options = $this->model_catalog_product->getProductOptions($this->request->get['master_id']);
 
 			foreach ($product_options as $product_option) {
 				$product_option_value_data = array();
@@ -1194,17 +1342,17 @@ class ControllerCatalogProduct extends Controller {
 		}
 
 		if (isset($this->request->post['product_related'])) {
-			$products = $this->request->post['product_related'];
+			$product_relateds = $this->request->post['product_related'];
 		} elseif (!empty($product_info)) {
-			$products = $this->model_catalog_product->getProductRelated($product_id);
+			$product_relateds = $this->model_catalog_product->getProductRelated($product_id);
 		} else {
-			$products = array();
+			$product_relateds = array();
 		}
 
 		$data['product_relateds'] = array();
 
-		foreach ($products as $product_id) {
-			$related_info = $this->model_catalog_product->getProduct($product_id);
+		foreach ($product_relateds as $related_id) {
+			$related_info = $this->model_catalog_product->getProduct($related_id);
 
 			if ($related_info) {
 				$data['product_relateds'][] = array(
@@ -1276,10 +1424,10 @@ class ControllerCatalogProduct extends Controller {
 			$this->error['model'] = $this->language->get('error_model');
 		}
 
-		if ($this->request->post['variant_id']) {
+		if ($this->request->post['master_id']) {
 			$this->load->model('catalog/product');
 
-			$product_options = $this->model_catalog_product->getProductOptions($this->request->post['variant_id']);
+			$product_options = $this->model_catalog_product->getProductOptions($this->request->post['master_id']);
 
 			foreach ($product_options as $product_option) {
 				if ($product_option['required'] && empty($this->request->post['product_variant'][$product_option['product_option_id']])) {
