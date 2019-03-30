@@ -40,10 +40,10 @@ $_['action_pre_action']  = array(
 );
 
 // Action Events
-$_['action_event'] = array(
+$_['action_event']      = array(
 	'controller/*/before' => array(
-		//'event/debug/before',
-		'event/language/before'
+		'event/language/before',
+		//'event/debug/before'
 	),
 	'controller/*/after' => array(
 		'event/language/after',

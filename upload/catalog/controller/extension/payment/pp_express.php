@@ -897,11 +897,13 @@ class ControllerExtensionPaymentPPExpress extends Controller {
 			$data['payment_address_format'] = isset($payment_address['address_format']) ? $payment_address['address_format'] : '';
 
 			$data['payment_method'] = '';
+
 			if (isset($this->session->data['payment_method']['title'])) {
 				$data['payment_method'] = $this->session->data['payment_method']['title'];
 			}
 
 			$data['payment_code'] = '';
+
 			if (isset($this->session->data['payment_method']['code'])) {
 				$data['payment_code'] = $this->session->data['payment_method']['code'];
 			}
@@ -1606,7 +1608,7 @@ class ControllerExtensionPaymentPPExpress extends Controller {
 
 		$request = 'cmd=_notify-validate';
 
-		foreach ($_POST as $key => $value) {
+		foreach ($this->request->post as $key => $value) {
 			$request .= '&' . $key . '=' . urlencode(html_entity_decode($value, ENT_QUOTES, 'UTF-8'));
 		}
 
