@@ -66,9 +66,6 @@ class ControllerStartupStartup extends Controller {
 			$this->response->setCompression($this->config->get('config_compression'));
 		}
 
-		// Theme
-		$this->config->set('template_cache', $this->config->get('developer_theme'));
-
 		// Url
 		$this->registry->set('url', new Url($this->config->get('config_url')));
 

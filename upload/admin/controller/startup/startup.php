@@ -36,9 +36,6 @@ class ControllerStartupStartup extends Controller {
 			$this->response->setCompression($this->config->get('config_compression'));
 		}
 
-		// Theme
-		$this->config->set('template_cache', $this->config->get('developer_theme'));
-				
 		// Language
 		$query = $this->db->query("SELECT * FROM `" . DB_PREFIX . "language` WHERE code = '" . $this->db->escape($this->config->get('config_admin_language')) . "'");
 		
@@ -80,6 +77,6 @@ class ControllerStartupStartup extends Controller {
 		$this->registry->set('cart', new Cart\Cart($this->registry));
 		
 		// Encryption
-		$this->registry->set('encryption', new Encryption($this->config->get('config_encryption')));
+		$this->registry->set('encryption', new Encryption());
 	}
 }
