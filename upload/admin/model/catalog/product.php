@@ -1,6 +1,106 @@
 <?php
 class ModelCatalogProduct extends Model {
 	public function addProduct($data) {
+		// If product is variant we need to get values from the master product
+		if ($data['master_id']) {
+			$master_info = $this->model_catalog_product->getProduct($data['master_id']);
+
+			if ($master_info) {
+				if (isset($data['override'])) {
+					$override = $data['override'];
+				} else {
+					$override = array();
+				}
+
+				$ignore = array(
+					'product_id',
+					'master_id',
+					'quantity',
+					'variant',
+					'override'
+				);
+
+				foreach ($master_info as $key => $value) {
+					// So if key not in override we replace with master value
+					// If key not in ignore list then replace with master value
+					if (!array_key_exists($key, $override) && !in_array($key, $ignore)) {
+						$data[$key] = $value;
+					}
+				}
+
+				// Descriptions
+				$product_descriptions = $this->model_catalog_product->getProductDescriptions($data['master_id']);
+
+				foreach ($product_descriptions as $language_id => $product_description) {
+					foreach ($product_description as $key => $value) {
+						if (!isset($override['product_description'][$language_id][$key])) {
+							$data['product_description'][$language_id][$key] = $value;
+						}
+					}
+				}
+
+				// Attributes
+				if (!isset($override['product_attribute'])) {
+					$data['product_attribute'] = $this->model_catalog_product->getProductAttributes($data['master_id']);
+				}
+
+				// Category
+				if (!isset($override['product_category'])) {
+					$data['product_category'] = $this->model_catalog_product->getProductCategories($data['master_id']);
+				}
+
+				// Discounts
+				if (!isset($override['product_discount'])) {
+					$data['product_discount'] = $this->model_catalog_product->getProductDiscounts($data['master_id']);
+				}
+
+				// Downloads
+				if (!isset($override['product_download'])) {
+					$data['product_download'] = $this->model_catalog_product->getProductDownloads($data['master_id']);
+				}
+
+				// Filters
+				if (!isset($override['product_filter'])) {
+					$data['product_filter'] = $this->model_catalog_product->getProductFilters($data['master_id']);
+				}
+
+				// Filters
+				if (!isset($override['product_image'])) {
+					$data['product_image'] = $this->model_catalog_product->getProductImages($data['master_id']);
+				}
+
+				// Layouts
+				if (!isset($override['product_layout'])) {
+					$data['product_layout'] = $this->model_catalog_product->getProductLayouts($data['master_id']);
+				}
+
+				// Recurrings
+				if (!isset($override['product_recurring'])) {
+					$data['product_recurring'] = $this->model_catalog_product->getProductRecurrings($data['master_id']);
+				}
+
+				// Related
+				if (!isset($override['product_related'])) {
+					$data['product_related'] = $this->model_catalog_product->getProductRelated($data['master_id']);
+				}
+
+				// Rewards
+				if (!isset($override['product_reward'])) {
+					$data['product_reward'] = $this->model_catalog_product->getProductRewards($data['master_id']);
+				}
+
+				// Specials
+				if (!isset($override['product_special'])) {
+					$data['product_special'] = $this->model_catalog_product->getProductSpecials($data['master_id']);
+				}
+
+				// Stores
+				if (!isset($override['product_store'])) {
+					$data['product_store'] = $this->model_catalog_product->getProductStores($data['master_id']);
+				}
+			}
+		}
+
 		$this->db->query("INSERT INTO " . DB_PREFIX . "product SET master_id = '" . (int)$data['master_id'] . "', model = '" . $this->db->escape((string)$data['model']) . "', sku = '" . $this->db->escape((string)$data['sku']) . "', upc = '" . $this->db->escape((string)$data['upc']) . "', ean = '" . $this->db->escape((string)$data['ean']) . "', jan = '" . $this->db->escape((string)$data['jan']) . "', isbn = '" . $this->db->escape((string)$data['isbn']) . "', mpn = '" . $this->db->escape((string)$data['mpn']) . "', location = '" . $this->db->escape((string)$data['location']) . "', variant = '" . $this->db->escape(!empty($data['variant']) ? json_encode($data['variant']) : '') . "', override = '" . $this->db->escape(!empty($data['override']) ? json_encode($data['override']) : '') . "', quantity = '" . (int)$data['quantity'] . "', minimum = '" . (int)$data['minimum'] . "', subtract = '" . (int)$data['subtract'] . "', stock_status_id = '" . (int)$data['stock_status_id'] . "', date_available = '" . $this->db->escape((string)$data['date_available']) . "', manufacturer_id = '" . (int)$data['manufacturer_id'] . "', shipping = '" . (int)$data['shipping'] . "', price = '" . (float)$data['price'] . "', points = '" . (int)$data['points'] . "', weight = '" . (float)$data['weight'] . "', weight_class_id = '" . (int)$data['weight_class_id'] . "', length = '" . (float)$data['length'] . "', width = '" . (float)$data['width'] . "', height = '" . (float)$data['height'] . "', length_class_id = '" . (int)$data['length_class_id'] . "', status = '" . (int)$data['status'] . "', tax_class_id = '" . (int)$data['tax_class_id'] . "', sort_order = '" . (int)$data['sort_order'] . "', date_added = NOW(), date_modified = NOW()");
 
 		$product_id = $this->db->getLastId();
@@ -150,6 +250,143 @@ class ModelCatalogProduct extends Model {
 	}
 
 	public function editProduct($product_id, $data) {
+
+		echo 'CALL editProduct' . "\n";
+
+		//print_r($this->request->get);
+		//print_r($this->request->post);
+
+		// If product is variant we need to get values from the master product
+		if ($data['master_id']) {
+
+
+			echo 'master_id=' . $data['master_id'] . "\n";
+			echo 'product_id=' . $product_id . "\n";
+
+			echo "\n";
+			print_r($data['override']);
+			echo "\n";
+			exit;
+
+
+
+
+
+
+			//print_r($data);
+
+
+			$master_info = $this->model_catalog_product->getProduct($data['master_id']);
+
+			if ($master_info) {
+
+
+
+
+				if (isset($data['override'])) {
+					$override = (array)$data['override'];
+				} else {
+					$override = array();
+				}
+
+				$ignore = array(
+					'product_id',
+					'master_id',
+					'quantity',
+					'variant',
+					'override'
+				);
+
+				foreach ($master_info as $key => $value) {
+					// So if key not in override we replace with master value
+					// If key not in ignore list then replace with master value
+					if (!array_key_exists($key, $override) && !in_array($key, $ignore)) {
+						$data[$key] = $value;
+					}
+				}
+
+
+
+
+				// Descriptions
+				$product_descriptions = $this->getProductDescriptions($data['master_id']);
+
+				foreach ($product_descriptions as $language_id => $product_description) {
+					foreach ($product_description as $key => $value) {
+						if (!isset($override['product_description'][$language_id][$key])) {
+							$data['product_description'][$language_id][$key] = $value;
+						}
+					}
+				}
+
+				// Attributes
+				if (!isset($override['product_attribute'])) {
+					$data['product_attribute'] = $this->model_catalog_product->getProductAttributes($data['master_id']);
+				}
+
+				// Category
+				if (!isset($override['product_category'])) {
+					$data['product_category'] = $this->model_catalog_product->getProductCategories($data['master_id']);
+				}
+
+				// Discounts
+				if (!isset($override['product_discount'])) {
+					$data['product_discount'] = $this->model_catalog_product->getProductDiscounts($data['master_id']);
+				}
+
+				// Downloads
+				if (!isset($override['product_download'])) {
+					$data['product_download'] = $this->model_catalog_product->getProductDownloads($data['master_id']);
+				}
+
+				// Filters
+				if (!isset($override['product_filter'])) {
+					$data['product_filter'] = $this->model_catalog_product->getProductFilters($data['master_id']);
+				}
+
+				// Filters
+				if (!isset($override['product_image'])) {
+					$data['product_image'] = $this->model_catalog_product->getProductImages($data['master_id']);
+				}
+
+				// Layouts
+				if (!isset($override['product_layout'])) {
+					$data['product_layout'] = $this->model_catalog_product->getProductLayouts($data['master_id']);
+				}
+
+				// Recurrings
+				if (!isset($override['product_recurring'])) {
+					$data['product_recurring'] = $this->model_catalog_product->getProductRecurrings($data['master_id']);
+				}
+
+				// Related
+				if (!isset($override['product_related'])) {
+					$data['product_related'] = $this->model_catalog_product->getProductRelated($data['master_id']);
+				}
+
+				// Rewards
+				if (!isset($override['product_reward'])) {
+					$data['product_reward'] = $this->model_catalog_product->getProductRewards($data['master_id']);
+				}
+
+				// Specials
+				if (!isset($override['product_special'])) {
+					$data['product_special'] = $this->model_catalog_product->getProductSpecials($data['master_id']);
+				}
+
+				// Stores
+				if (!isset($override['product_store'])) {
+					$data['product_store'] = $this->model_catalog_product->getProductStores($data['master_id']);
+				}
+			}
+		}
+
+
+
+
+
+
+
 		$this->db->query("UPDATE " . DB_PREFIX . "product SET model = '" . $this->db->escape((string)$data['model']) . "', sku = '" . $this->db->escape((string)$data['sku']) . "', upc = '" . $this->db->escape((string)$data['upc']) . "', ean = '" . $this->db->escape((string)$data['ean']) . "', jan = '" . $this->db->escape((string)$data['jan']) . "', isbn = '" . $this->db->escape((string)$data['isbn']) . "', mpn = '" . $this->db->escape((string)$data['mpn']) . "', location = '" . $this->db->escape((string)$data['location']) . "', variant = '" . $this->db->escape(!empty($data['variant']) ? json_encode($data['variant']) : '') . "', override = '" . $this->db->escape(!empty($data['override']) ? json_encode($data['override']) : '') . "', quantity = '" . (int)$data['quantity'] . "', minimum = '" . (int)$data['minimum'] . "', subtract = '" . (int)$data['subtract'] . "', stock_status_id = '" . (int)$data['stock_status_id'] . "', date_available = '" . $this->db->escape((string)$data['date_available']) . "', manufacturer_id = '" . (int)$data['manufacturer_id'] . "', shipping = '" . (int)$data['shipping'] . "', price = '" . (float)$data['price'] . "', points = '" . (int)$data['points'] . "', weight = '" . (float)$data['weight'] . "', weight_class_id = '" . (int)$data['weight_class_id'] . "', length = '" . (float)$data['length'] . "', width = '" . (float)$data['width'] . "', height = '" . (float)$data['height'] . "', length_class_id = '" . (int)$data['length_class_id'] . "', status = '" . (int)$data['status'] . "', tax_class_id = '" . (int)$data['tax_class_id'] . "', sort_order = '" . (int)$data['sort_order'] . "', date_modified = NOW() WHERE product_id = '" . (int)$product_id . "'");
 
 		if ($data['image']) {
@@ -229,29 +466,29 @@ class ModelCatalogProduct extends Model {
 		}
 
 		// Options
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option WHERE product_id = '" . (int)$product_id . "'");
-		$this->db->query("DELETE FROM " . DB_PREFIX . "product_option_value WHERE product_id = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "product_option` WHERE `product_id` = '" . (int)$product_id . "'");
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "product_option_value` WHERE `product_id` = '" . (int)$product_id . "'");
 
 		if (isset($data['product_option'])) {
 			foreach ($data['product_option'] as $product_option) {
 				if ($product_option['type'] == 'select' || $product_option['type'] == 'radio' || $product_option['type'] == 'checkbox' || $product_option['type'] == 'image') {
 					if (isset($product_option['product_option_value'])) {
-						$this->db->query("INSERT INTO " . DB_PREFIX . "product_option SET product_option_id = '" . (int)$product_option['product_option_id'] . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', required = '" . (int)$product_option['required'] . "'");
+						$this->db->query("INSERT INTO `" . DB_PREFIX . "product_option` SET `product_option_id` = '" . (int)$product_option['product_option_id'] . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', required = '" . (int)$product_option['required'] . "'");
 
 						$product_option_id = $this->db->getLastId();
 
 						foreach ($product_option['product_option_value'] as $product_option_value) {
-							$this->db->query("INSERT INTO " . DB_PREFIX . "product_option_value SET product_option_value_id = '" . (int)$product_option_value['product_option_value_id'] . "', product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");
+							$this->db->query("INSERT INTO `" . DB_PREFIX . "product_option_value` SET `product_option_value_id` = '" . (int)$product_option_value['product_option_value_id'] . "', product_option_id = '" . (int)$product_option_id . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', option_value_id = '" . (int)$product_option_value['option_value_id'] . "', quantity = '" . (int)$product_option_value['quantity'] . "', subtract = '" . (int)$product_option_value['subtract'] . "', price = '" . (float)$product_option_value['price'] . "', price_prefix = '" . $this->db->escape($product_option_value['price_prefix']) . "', points = '" . (int)$product_option_value['points'] . "', points_prefix = '" . $this->db->escape($product_option_value['points_prefix']) . "', weight = '" . (float)$product_option_value['weight'] . "', weight_prefix = '" . $this->db->escape($product_option_value['weight_prefix']) . "'");
 						}
 					}
 				} else {
-					$this->db->query("INSERT INTO " . DB_PREFIX . "product_option SET product_option_id = '" . (int)$product_option['product_option_id'] . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', value = '" . $this->db->escape($product_option['value']) . "', required = '" . (int)$product_option['required'] . "'");
+					$this->db->query("INSERT INTO `" . DB_PREFIX . "product_option` SET `product_option_id` = '" . (int)$product_option['product_option_id'] . "', product_id = '" . (int)$product_id . "', option_id = '" . (int)$product_option['option_id'] . "', value = '" . $this->db->escape($product_option['value']) . "', required = '" . (int)$product_option['required'] . "'");
 				}
 			}
 		}
 
 		// Recurring
-		$this->db->query("DELETE FROM `" . DB_PREFIX . "product_recurring` WHERE product_id = " . (int)$product_id);
+		$this->db->query("DELETE FROM `" . DB_PREFIX . "product_recurring` WHERE `product_id` = " . (int)$product_id);
 
 		if (isset($data['product_recurring'])) {
 			foreach ($data['product_recurring'] as $product_recurring) {
@@ -321,37 +558,152 @@ class ModelCatalogProduct extends Model {
 			}
 		}
 
+
+
+
+
+
+
+		// We need to update variant products with the new master product data.
+		$products = $this->model_catalog_product->getProducts(array('filter_master_id' => $product_id));
+
+		foreach ($products as $product) {
+			$variant_data = $data;
+
+			$override = (array)json_decode($product['override'], true);
+
+			$replace = array(
+				'master_id',
+				'quantity',
+				'override',
+				'variant',
+				'product_seo_url'
+			);
+
+			foreach ($product as $key => $value) {
+				// We want to check override if to use override value
+				if (array_key_exists($key, $override) || in_array($key, $replace)) {
+					// Restore default value
+					$variant_data[$key] = $value;
+				}
+			}
+
+			// Make sure these are arrays not strings
+			$variant_data['variant'] = (array)json_decode($product['variant'], true);
+
+			// Descriptions
+			$product_descriptions = $this->model_catalog_product->getProductDescriptions($product['product_id']);
+
+			foreach ($product_descriptions as $language_id => $product_description) {
+				foreach ($product_description as $key => $value) {
+					if (isset($override['product_description'][$language_id][$key])) {
+						$variant_data['product_description'][$language_id][$key] = $value;
+					}
+				}
+			}
+
+			// Category
+			if (isset($override['product_category'])) {
+				$variant_data['product_category'] = $this->model_catalog_product->getProductCategories($product['product_id']);
+			}
+
+			// Filter
+			if (isset($override['product_filter'])) {
+				$variant_data['product_filter'] = $this->model_catalog_product->getProductFilters($product['product_id']);
+			}
+
+			// Stores
+			if (isset($override['product_store'])) {
+				$variant_data['product_store'] = $this->model_catalog_product->getProductStores($product['product_id']);
+			}
+
+			// Downloads
+			if (isset($override['product_download'])) {
+				$variant_data['product_download'] = $this->model_catalog_product->getProductDownloads($product['product_id']);
+			}
+
+			// Related
+			if (isset($override['product_related'])) {
+				$variant_data['product_related'] = $this->model_catalog_product->getProductRelated($product['product_id']);
+			}
+
+			// Attributes
+			if (isset($override['product_attribute'])) {
+				$variant_data['product_attribute'] = $this->model_catalog_product->getProductAttributes($product['product_id']);
+			}
+
+			// Recurring
+			if (isset($override['product_recurring'])) {
+				$variant_data['product_recurring'] = $this->model_catalog_product->getProductRecurrings($product['product_id']);
+			}
+
+			// Discount
+			if (isset($override['product_discount'])) {
+				$variant_data['product_discount'] = $this->model_catalog_product->getProductDiscounts($product['product_id']);
+			}
+
+			// Special
+			if (isset($override['product_special'])) {
+				$variant_data['product_special'] = $this->model_catalog_product->getProductSpecials($product['product_id']);
+			}
+
+			// Images
+			if (isset($override['product_image'])) {
+				$variant_data['product_image'] = $this->model_catalog_product->getProductImages($product['product_id']);
+			}
+
+			// Reward
+			if (isset($override['product_reward'])) {
+				$variant_data['product_reward'] = $this->model_catalog_product->getProductRewards($product['product_id']);
+			}
+
+			// SEO URL
+			$variant_data['product_seo_url'] = $this->model_catalog_product->getProductSeoUrls($product['product_id']);
+
+			// Layout
+			if (isset($override['product_layout'])) {
+				$variant_data['product_layout'] = $this->model_catalog_product->getProductLayouts($product['product_id']);
+			}
+
+			//$this->model_catalog_product->editProduct($product['product_id'], $variant_data);
+		}
+
+
+
+
+
+
+
+
 		$this->cache->delete('product');
 	}
 
 	public function copyProduct($product_id) {
-		$query = $this->db->query("SELECT DISTINCT * FROM " . DB_PREFIX . "product p WHERE p.product_id = '" . (int)$product_id . "'");
+		$product_info = $this->model_catalog_product->getProduct($product_id);
 
-		if ($query->num_rows) {
-			$data = $query->row;
+		if ($product_info) {
+			$data = $product_info;
 
 			$data['sku'] = '';
 			$data['upc'] = '';
-			$data['viewed'] = '0';
-			$data['keyword'] = '';
 			$data['status'] = '0';
 
-			$data['product_attribute'] = $this->getProductAttributes($product_id);
-			$data['product_category'] = $this->getProductCategories($product_id);
-			$data['product_description'] = $this->getProductDescriptions($product_id);
-			$data['product_discount'] = $this->getProductDiscounts($product_id);
-			$data['product_download'] = $this->getProductDownloads($product_id);
-			$data['product_filter'] = $this->getProductFilters($product_id);
-			$data['product_image'] = $this->getProductImages($product_id);
-			$data['product_layout'] = $this->getProductLayouts($product_id);
-			$data['product_option'] = $this->getProductOptions($product_id);
-			$data['product_recurring'] = $this->getProductRecurrings($product_id);
-			$data['product_related'] = $this->getProductRelated($product_id);
-			$data['product_reward'] = $this->getProductRewards($product_id);
-			$data['product_special'] = $this->getProductSpecials($product_id);
-			$data['product_store'] = $this->getProductStores($product_id);
+			$data['product_attribute'] = $this->model_catalog_product->getProductAttributes($product_id);
+			$data['product_category'] = $this->model_catalog_product->getProductCategories($product_id);
+			$data['product_description'] = $this->model_catalog_product->getProductDescriptions($product_id);
+			$data['product_discount'] = $this->model_catalog_product->getProductDiscounts($product_id);
+			$data['product_download'] = $this->model_catalog_product->getProductDownloads($product_id);
+			$data['product_filter'] = $this->model_catalog_product->getProductFilters($product_id);
+			$data['product_image'] = $this->model_catalog_product->getProductImages($product_id);
+			$data['product_layout'] = $this->model_catalog_product->getProductLayouts($product_id);
+			$data['product_option'] = $this->model_catalog_product->getProductOptions($product_id);
+			$data['product_recurring'] = $this->model_catalog_product->getProductRecurrings($product_id);
+			$data['product_related'] = $this->model_catalog_product->getProductRelated($product_id);
+			$data['product_reward'] = $this->model_catalog_product->getProductRewards($product_id);
+			$data['product_special'] = $this->model_catalog_product->getProductSpecials($product_id);
+			$data['product_store'] = $this->model_catalog_product->getProductStores($product_id);
 
-			$this->addProduct($data);
+			$this->model_catalog_product->addProduct($data);
 		}
 	}
 
@@ -378,6 +730,8 @@ class ModelCatalogProduct extends Model {
 		$this->db->query("DELETE FROM " . DB_PREFIX . "seo_url WHERE query = 'product_id=" . (int)$product_id . "'");
 		$this->db->query("DELETE FROM " . DB_PREFIX . "coupon_product WHERE product_id = '" . (int)$product_id . "'");
 
+		$this->db->query("UPDATE " . DB_PREFIX . "product SET master_id = '0' WHERE master_id = '" . (int)$product_id . "'");
+
 		$this->cache->delete('product');
 	}
 
@@ -390,12 +744,12 @@ class ModelCatalogProduct extends Model {
 	public function getProducts($data = array()) {
 		$sql = "SELECT * FROM " . DB_PREFIX . "product p LEFT JOIN " . DB_PREFIX . "product_description pd ON (p.product_id = pd.product_id) WHERE pd.language_id = '" . (int)$this->config->get('config_language_id') . "'";
 
-		if (!empty($data['filter_name'])) {
-			$sql .= " AND pd.name LIKE '" . $this->db->escape((string)$data['filter_name']) . "%'";
-		}
-
 		if (!empty($data['filter_master_id'])) {
 			$sql .= " AND p.master_id = '" . (int)$data['filter_master_id'] . "'";
+		}
+
+		if (!empty($data['filter_name'])) {
+			$sql .= " AND pd.name LIKE '" . $this->db->escape((string)$data['filter_name']) . "%'";
 		}
 
 		if (!empty($data['filter_model'])) {
