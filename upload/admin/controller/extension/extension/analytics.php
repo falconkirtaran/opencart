@@ -89,7 +89,7 @@ class ControllerExtensionExtensionAnalytics extends Controller {
 				$extension = basename($file, '.php');
 				
 				// Compatibility code for old extension folders
-				$this->load->language('extension/analytics/' . $extension, $extension . '_');
+				$this->load->language('extension/analytics/' . $extension, $extension);
 				
 				$store_data = array();
 

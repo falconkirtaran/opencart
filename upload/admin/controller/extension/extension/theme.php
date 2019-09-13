@@ -88,7 +88,7 @@ class ControllerExtensionExtensionTheme extends Controller {
 			foreach ($files as $file) {
 				$extension = basename($file, '.php');
 				
-				$this->load->language('extension/theme/' . $extension, $extension . '_');
+				$this->load->language('extension/theme/' . $extension, $extension);
 					
 				$store_data = array();
 				

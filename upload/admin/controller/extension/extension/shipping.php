@@ -85,7 +85,7 @@ class ControllerExtensionExtensionShipping extends Controller {
 			foreach ($files as $file) {
 				$extension = basename($file, '.php');
 
-				$this->load->language('extension/shipping/' . $extension, $extension . '_');
+				$this->load->language('extension/shipping/' . $extension, $extension);
 
 				$data['extensions'][] = array(
 					'name'       => $this->language->get($extension . '_heading_title'),

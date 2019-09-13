@@ -83,7 +83,7 @@ class ControllerExtensionExtensionCurrency extends Controller {
 			foreach ($files as $file) {
 				$extension = basename($file, '.php');
 
-				$this->load->language('extension/currency/' . $extension, $extension . '_');
+				$this->load->language('extension/currency/' . $extension, $extension);
 
 				$data['extensions'][] = array(
 					'name'      => $this->language->get($extension . '_heading_title') . (($extension == $this->config->get('config_currency')) ? $this->language->get('text_default') : null),
