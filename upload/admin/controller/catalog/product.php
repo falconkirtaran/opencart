@@ -433,10 +433,6 @@ class ControllerCatalogProduct extends Controller {
 			$url .= '&order=ASC';
 		}
 
-		if (isset($this->request->get['page'])) {
-			$url .= '&page=' . $this->request->get['page'];
-		}
-
 		$data['sort_name'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=pd.name' . $url);
 		$data['sort_model'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.model' . $url);
 		$data['sort_price'] = $this->url->link('catalog/product', 'user_token=' . $this->session->data['user_token'] . '&sort=p.price' . $url);
@@ -1358,10 +1354,15 @@ class ControllerCatalogProduct extends Controller {
 						$seo_urls = $this->model_design_seo_url->getSeoUrlsByKeyword($keyword);
 
 						foreach ($seo_urls as $seo_url) {
-							if (($seo_url['store_id'] == $store_id) && ($seo_url['language_id'] == $language_id) && (!isset($this->request->get['product_id']) || (($seo_url['query'] != 'product_id=' . $this->request->get['product_id'])))) {
-								$this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
 
-								break;
+							if ($seo_url['store_id'] == $store_id && $seo_url['language_id'] == $language_id) {
+
+								if (!isset($this->request->get['product_id']) || ($seo_url['query'] != 'product_id=' . $this->request->get['product_id'])) {
+									$this->error['keyword'][$store_id][$language_id] = $this->language->get('error_keyword');
+
+									break;
+								}
+
 							}
 						}
 					} else {
