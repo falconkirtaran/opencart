@@ -23,6 +23,8 @@ function getURLVar(key) {
 }
 
 $(document).ready(function() {
+	$('form').trigger('reset');
+	
 	// Highlight any found errors
 	$('.text-danger').each(function() {
 		var element = $(this).parent().find(':input');
@@ -84,7 +86,7 @@ $(document).ready(function() {
 	$('#list-view').click(function() {
 		$('#content .product-grid > .clearfix').remove();
 
-		$('#content .row > .product-grid').attr('class', 'product-layout product-list col-xs-12');
+		$('#content .row > .product-grid').attr('class', 'product-layout product-list col-12');
 
 		$('#grid-view').removeClass('active');
 		$('#list-view').addClass('active');
@@ -368,7 +370,7 @@ $(document).delegate('.agree', 'click', function(e) {
 			html += '    <div class="modal-content">';
 			html += '      <div class="modal-header">';
 			html += '        <h4 class="modal-title">' + $(element).text() + '</h4>';
-			html += '        <button type="button" class="close" data-dismiss="toast">&times;</button>';
+			html += '        <button type="button" class="close" data-dismiss="modal">&times;</button>';
 			html += '      </div>';
 			html += '      <div class="modal-body">' + data + '</div>';
 			html += '    </div>';
