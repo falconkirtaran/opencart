@@ -22,295 +22,275 @@ function getURLVar(key) {
 	}
 }
 
-$(document).ready(function() {
-	$('form').trigger('reset');
+function outerWidth(el) {
+	var width = el.offsetWidth;
+	var style = getComputedStyle(el);
+	width += parseInt(style.marginLeft) + parseInt(style.marginRight);
+	return width;
+}
+
+var ready = (callback) => {
+	if (document.readyState != "loading") callback();
+	else document.addEventListener("DOMContentLoaded", callback);
+}
+
+ready(() => {
+	document.querySelectorAll('form').forEach(x => x.dispatchEvent(new Event('reset')));
 	
 	// Highlight any found errors
-	$('.text-danger').each(function() {
-		var element = $(this).parent().find(':input');
-
-		if (element.hasClass('form-control')) {
-			element.addClass('is-invalid');
-		}
-	});
-
-	// tooltips on hover
-	$('[data-toggle=\'tooltip\']').tooltip({container: 'body'});
-
-	// Makes tooltips work on ajax generated content
-	$(document).ajaxStop(function() {
-		$('[data-toggle=\'tooltip\']').tooltip({container: 'body'});
+	document.querySelectorAll('.text-danger').forEach(x => {
+		x.parentElement.querySelectorAll('input, button, textarea, select').forEach(y => {
+			if (y.classList.contains('form-control')) y.classList.add('is-invalid');
+		});
 	});
 
 	// Currency
-	$('#form-currency .dropdown-item').on('click', function(e) {
-		e.preventDefault();
-
-		$('#form-currency input[name=\'code\']').val($(this).attr('href'));
-
-		$('#form-currency').submit();
+	document.querySelectorAll('#form-currency .dropdown-item').forEach(x => {
+		x.addEventListener('click', function(e) {
+			e.preventDefault();
+			document.querySelectorAll('#form-currency input[name=\'code\']').forEach(y => y.value = (x.getAttribute('href')));
+			document.querySelector('#form-currency').submit();
+		});
 	});
 
 	/* Search */
-	$('#search input[name=\'search\']').parent().find('button').on('click', function() {
-		var url = $('base').attr('href') + 'index.php?route=product/search';
-
-		var value = $('header #search input[name=\'search\']').val();
-
-		if (value) {
-			url += '&search=' + encodeURIComponent(value);
-		}
-
+	var searchBox = document.querySelector('#search input[name=\'search\']');
+	var searchBoxClickEvent = function(e) {
+		var url = document.querySelector('base').getAttribute('href') + 'index.php?route=product/search';
+		var value = document.querySelector('header #search input[name=\'search\']').value;
+		if (value) url += '&search=' + encodeURIComponent(value);
 		location = url;
-	});
+	}
 
-	$('#search input[name=\'search\']').on('keydown', function(e) {
-		if (e.keyCode == 13) {
-			$('header #search input[name=\'search\']').parent().find('button').trigger('click');
-		}
+	searchBox.parentElement.querySelector('button').addEventListener('click', searchBoxClickEvent);
+
+	searchBox.addEventListener('keydown', e => {
+		if (e.keyCode == 13) searchBoxClickEvent(e);
 	});
 
 	// Menu
-	$('#menu .dropdown-menu').each(function() {
-		var menu = $('#menu').offset();
-		var dropdown = $(this).parent().offset();
-
-		var i = (dropdown.left + $(this).outerWidth()) - (menu.left + $('#menu').outerWidth());
-
-		if (i > 0) {
-			$(this).css('margin-left', '-' + (i + 10) + 'px');
-		}
+	document.querySelectorAll('#menu .dropdown-menu').forEach(x => {
+		var menu = querySelector('#menu');
+		var menuLeft = menu.getBoundingClientRect().left + document.body.scrollLeft;
+		var dropdownLeft = menu.parentElement.getBoundingClientRect().left + document.body.scrollLeft;
+		var i = (dropdownLeft + outerWidth(x)) - (menuLeft + outerWidth(menu));
+		if (i<0) x.style.marginLeft = '-' + (i + 10) + 'px';
 	});
 
 	// Product List
-	$('#list-view').click(function() {
-		$('#content .product-grid > .clearfix').remove();
-
-		$('#content .row > .product-grid').attr('class', 'product-layout product-list col-12');
-
-		$('#grid-view').removeClass('active');
-		$('#list-view').addClass('active');
-
+	var listViewOnClick = function() {
+		document.querySelectorAll('#content .product-grid > .clearfix').forEach(y => y.parentNode.removeChild(y));
+		document.querySelectorAll('#content .row > .product-grid').forEach(y => y.setAttribute('class', 'product-layout product-list col-12'));
+		document.querySelectorAll('#grid-view').forEach(y => y.classList.remove('active'));
+		document.querySelectorAll('#list-view').forEach(y => y.classList.add('active'));
 		localStorage.setItem('display', 'list');
-	});
+	};
+	document.querySelectorAll('#list-view').forEach(x => x.addEventListener('click', listViewOnClick));
 
 	// Product Grid
-	$('#grid-view').click(function() {
-		// What a shame bootstrap does not take into account dynamically loaded columns
-		var cols = $('#column-right, #column-left').length;
+	var gridViewOnClick = function() {
+		var cols = document.querySelectorAll('#column-right, #column-left').length;
+		var productList = document.querySelectorAll('#content .product-list');
 
-		if (cols == 2) {
-			$('#content .product-list').attr('class', 'product-layout product-grid col-lg-6 col-md-6 col-sm-12 col-sm-12');
-		} else if (cols == 1) {
-			$('#content .product-list').attr('class', 'product-layout product-grid col-lg-4 col-md-4 col-sm-6 col-12');
-		} else {
-			$('#content .product-list').attr('class', 'product-layout product-grid col-lg-3 col-md-3 col-sm-6 col-12');
-		}
+		if (cols == 2) productList.forEach(x => x.setAttribute('class', 'product-layout product-grid col-lg-6 col-md-6 col-sm-12 col-sm-12'));
+		else if (cols == 1) productList.forEach(x => x.setAttribute('class', 'product-layout product-grid col-lg-4 col-md-4 col-sm-6 col-12'));
+		else productList.forEach(x => x.setAttribute('class', 'product-layout product-grid col-lg-3 col-md-3 col-sm-6 col-12'));
 
-		$('#list-view').removeClass('active');
-		$('#grid-view').addClass('active');
-
+		document.querySelectorAll('#grid-view').forEach(y => y.classList.add('active'));
+		document.querySelectorAll('#list-view').forEach(y => y.classList.remove('active'));
 		localStorage.setItem('display', 'grid');
-	});
+	};
+	document.querySelectorAll('#grid-view').forEach(x => x.addEventListener('click', gridViewOnClick));
 
 	if (localStorage.getItem('display') == 'list') {
-		$('#list-view').trigger('click');
-		$('#list-view').addClass('active');
+		listViewOnClick();
+		document.querySelectorAll('#list-view').forEach(x => x.classList.add('active'));
 	} else {
-		$('#grid-view').trigger('click');
-		$('#grid-view').addClass('active');
+		gridViewOnClick();
+		document.querySelectorAll('#grid-view').forEach(x => x.classList.add('active'));
 	}
 
 	// Cookie Policy
-	$('#button-cookie').on('click', function(e) {
+	document.querySelectorAll('#button-cookie').forEach(x => x.addEventListener('click', async e => {
 		e.preventDefault();
-
-		$.ajax({
-			url: 'index.php?route=common/cookie/agree',
-			dataType: 'json',
-			beforeSend: function() {
-				$('#button-cookie').button('loading');
-			},
-			complete: function() {
-				$('#button-cookie').button('reset');
-			},
-			success: function(json) {
-				if (json['success']) {
-					$('#cookie').slideUp(400, function() {
-						$('#cookie').remove();
-					});
+		x.classList.add('disabled');
+		var resetText = x.innerText;
+		x.innerText = x.getAttribute('data-loading-text');
+		try {
+			var httpResp = await fetch('index.php?route=common/cookie/agree');
+			if (httpResp.ok) {
+				var resp = await httpResp.json();
+				if (resp['success']) {
+					var cookieDialogue = document.querySelector('#cookie');
+					cookieDialogue.slideUp(400, cookieDialogue.remove);
 				}
 			}
-		});
-	});
+		} catch (e) {}
+		x.classList.remove('disabled');
+		x.innerText = resetText;
+	}));
 });
+
+function usingCartButton(n) {
+	var cartButton = document.querySelector('#cart > button');
+	cartButton.classList.add('disabled');
+	var cartButtonResetText = cartButton.innerText;
+	cartButton.innerText = cartButton.getAttribute('data-loading-text');
+	n();
+	cartButton.classList.remove('disabled');
+	cartButton.innerText = cartButtonResetText;
+};
 
 // Cart add remove functions
 var cart = {
 	'add': function(product_id, quantity) {
-		$.ajax({
-			url: 'index.php?route=checkout/cart/add',
-			type: 'post',
-			data: 'product_id=' + product_id + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
-			dataType: 'json',
-			beforeSend: function() {
-				$('#cart > button').button('loading');
-			},
-			complete: function() {
-				$('#cart > button').button('reset');
-			},
-			success: function(json) {
-				$('.text-danger, .toast').remove();
-				$('.form-control').removeClass('is-invalid');
+		usingCartButton(() => {
+			$.ajax({
+				url: 'index.php?route=checkout/cart/add',
+				type: 'post',
+				data: 'product_id=' + product_id + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
+				dataType: 'json',
+				success: function(json) {
+					$('.text-danger, .toast').remove();
+					$('.form-control').removeClass('is-invalid');
 
-				if (json['redirect']) {
-					location = json['redirect'];
+					if (json['redirect']) {
+						location = json['redirect'];
+					}
+
+					if (json['success']) {
+						html  = '<div id="toast" class="toast">';
+						html += '  <div class="toast-header">';
+						html += '    <strong class="mr-auto"><i class="fas fa-shopping-cart"></i> Shopping Cart</strong>';
+						html += '    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>';
+						html += '  </div>';
+						html += '  <div class="toast-body">' + json['success'] + '</div>';
+						html += '</div>';
+
+						$('body').append(html);
+
+						$('#toast').toast({'delay': 3000});
+
+						$('#toast').toast('show');
+
+						// Need to set timeout otherwise it wont update the total
+						$('#cart').parent().load('index.php?route=common/cart/info');
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 				}
-
-				if (json['success']) {
-					html  = '<div id="toast" class="toast">';
-					html += '  <div class="toast-header">';
-					html += '    <strong class="mr-auto"><i class="fas fa-shopping-cart"></i> Shopping Cart</strong>';
-					html += '    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>';
-					html += '  </div>';
-					html += '  <div class="toast-body">' + json['success'] + '</div>';
-					html += '</div>';
-
-					$('body').append(html);
-
-					$('#toast').toast({'delay': 3000});
-
-					$('#toast').toast('show');
-
-					// Need to set timeout otherwise it wont update the total
-					$('#cart').parent().load('index.php?route=common/cart/info');
-				}
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
+			});
 		});
 	},
 	'update': function(key, quantity) {
-		$.ajax({
-			url: 'index.php?route=checkout/cart/edit',
-			type: 'post',
-			data: 'key=' + key + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
-			dataType: 'json',
-			beforeSend: function() {
-				$('#cart > button').button('loading');
-			},
-			complete: function() {
-				$('#cart > button').button('reset');
-			},
-			success: function(json) {
-				if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
-					location = 'index.php?route=checkout/cart';
-				} else {
-					$('#cart').parent().load('index.php?route=common/cart/info');
+		usingCartButton(() => {
+			$.ajax({
+				url: 'index.php?route=checkout/cart/edit',
+				type: 'post',
+				data: 'key=' + key + '&quantity=' + (typeof(quantity) != 'undefined' ? quantity : 1),
+				dataType: 'json',
+				success: function(json) {
+					if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
+						location = 'index.php?route=checkout/cart';
+					} else {
+						$('#cart').parent().load('index.php?route=common/cart/info');
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 				}
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
+			});
 		});
 	},
 	'remove': function(key) {
-		$.ajax({
-			url: 'index.php?route=checkout/cart/remove',
-			type: 'post',
-			data: 'key=' + key,
-			dataType: 'json',
-			beforeSend: function() {
-				$('#cart > button').button('loading');
-			},
-			complete: function() {
-				$('#cart > button').button('reset');
-			},
-			success: function(json) {
-				if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
-					location = 'index.php?route=checkout/cart';
-				} else {
-					$('#cart').parent().load('index.php?route=common/cart/info');
+		usingCartButton(() => {
+			$.ajax({
+				url: 'index.php?route=checkout/cart/remove',
+				type: 'post',
+				data: 'key=' + key,
+				dataType: 'json',
+				success: function(json) {
+					if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
+						location = 'index.php?route=checkout/cart';
+					} else {
+						$('#cart').parent().load('index.php?route=common/cart/info');
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 				}
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
+			});
 		});
 	}
 };
 
 var voucher = {
 	'add': function() {
-
 	},
 	'remove': function(key) {
-		$.ajax({
-			url: 'index.php?route=checkout/cart/remove',
-			type: 'post',
-			data: 'key=' + key,
-			dataType: 'json',
-			beforeSend: function() {
-				$('#cart > button').button('loading');
-			},
-			complete: function() {
-				$('#cart > button').button('reset');
-			},
-			success: function(json) {
-				if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
-					location = 'index.php?route=checkout/cart';
-				} else {
-					$('#cart').parent().load('index.php?route=common/cart/info');
+		usingCartButton(() => {
+			$.ajax({
+				url: 'index.php?route=checkout/cart/remove',
+				type: 'post',
+				data: 'key=' + key,
+				dataType: 'json',
+				success: function(json) {
+					if (getURLVar('route') == 'checkout/cart' || getURLVar('route') == 'checkout/checkout') {
+						location = 'index.php?route=checkout/cart';
+					} else {
+						$('#cart').parent().load('index.php?route=common/cart/info');
+					}
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 				}
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
+			});
 		});
 	}
 };
 
 var wishlist = {
 	'add': function(product_id) {
-		$.ajax({
-			url: 'index.php?route=account/wishlist/add',
-			type: 'post',
-			data: 'product_id=' + product_id,
-			dataType: 'json',
-			success: function(json) {
-				$('#toast').remove();
+		usingCartButton(() => {
+			$.ajax({
+				url: 'index.php?route=account/wishlist/add',
+				type: 'post',
+				data: 'product_id=' + product_id,
+				dataType: 'json',
+				success: function(json) {
+					$('#toast').remove();
 
-				if (json['redirect']) {
-					location = json['redirect'];
+					if (json['redirect']) {
+						location = json['redirect'];
+					}
+
+					if (json['success']) {
+						html  = '<div id="toast" class="toast">';
+						html += '  <div class="toast-header">';
+						html += '    <strong class="mr-auto"><i class="fas fa-shopping-cart"></i> Shopping Cart</strong>';
+						html += '    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>';
+						html += '  </div>';
+						html += '  <div class="toast-body">' + json['success'] + '</div>';
+						html += '</div>';
+
+						$('body').append(html);
+
+						$('#toast').toast({'delay': 3000});
+
+						$('#toast').toast('show');
+					}
+
+					$('#wishlist-total span').html(json['total']);
+					$('#wishlist-total').attr('title', json['total']);
+				},
+				error: function(xhr, ajaxOptions, thrownError) {
+					alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
 				}
-
-				if (json['success']) {
-					html  = '<div id="toast" class="toast">';
-					html += '  <div class="toast-header">';
-					html += '    <strong class="mr-auto"><i class="fas fa-shopping-cart"></i> Shopping Cart</strong>';
-					html += '    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast">&times;</button>';
-					html += '  </div>';
-					html += '  <div class="toast-body">' + json['success'] + '</div>';
-					html += '</div>';
-
-					$('body').append(html);
-
-					$('#toast').toast({'delay': 3000});
-
-					$('#toast').toast('show');
-				}
-
-				$('#wishlist-total span').html(json['total']);
-				$('#wishlist-total').attr('title', json['total']);
-			},
-			error: function(xhr, ajaxOptions, thrownError) {
-				alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
-			}
+			});
 		});
 	},
 	'remove': function() {
-
 	}
 };
 
